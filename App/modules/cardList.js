@@ -11,7 +11,6 @@ const List = ({ route }) => {
     const renderItem = ({ item }) => (
         <Card item={item} />
     );
-    //I am the great mkk, i deserved what i wished , and i will acheive it whatever it takes, my past is proof ,that what is desired i achieved it
     React.useEffect(() => {
         const fetchAsync = async () => (await (await fetch(url + page.toString())).json()).results;
         fetchAsync().then(val => setData(val));
