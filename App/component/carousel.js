@@ -1,41 +1,42 @@
 import React from 'react';
-import { View, Text, FlatList, ScrollView } from 'react-native';
+import { View, Text, FlatList, ScrollView,Dimensions } from 'react-native';
 import CarouselItem from './carouselItem';
 import { fetchData } from "./../service";
-import { useEffect, useState ,useRef} from 'react';
+import { useEffect, useState, useRef } from 'react';
+// Working Carousel logic, from kishan code, kishan is great coder, need to learn more carousel logic to do more advance stuff
+const windowWidth=Dimensions.get('window').width;
 
-const Carousel = ({ navigation }) => {
-    const [data, setData] = useState([]);
+const Carousel = ({ navigation,dataVal }) => {
+    const flatList = useRef();
+    const currentIndex = useRef(0);
 
     // Auto Scroll Logic
     // Infintie Scroll Logic
+    const makeFlatListScollable = (len) => {
+        setInterval(() => {
+            flatList.current?.scrollToIndex({ animated: true, index: (currentIndex.current + 1) % len }); //Not working
+            currentIndex.current = (currentIndex.current + 1) % len;
+            //console.log("Inside scrollable list" + currentIndex.current);
+        }, 3000);
+    }
 
-    let url = "https://image.tmdb.org/t/p/w500";
-
-    useEffect(() => {
-        fetchData().then(val => {
-            let arr = [];
-            val.results.map(val => {
-                var obj = {
-                    title: val.original_title,
-                    id: val.id,
-                    genre: "Suspense",
-                    rating: val.vote_average,
-                    description: val.overview,
-                    image: url + val.poster_path,
-                    bgImage: url + val.backdrop_path
-                }
-                arr.push(obj);
-            })
-            setData(arr);
-        })
+    useEffect(() => { 
+        makeFlatListScollable(20); //Working Scrollable with infinite and auto scroll
     }, []);
+
+    const handleScroll = (x) => {
+        let index = Math.floor(x / windowWidth);
+        currentIndex.current = index
+    }
 
     return (
 
         <View>
             <FlatList
-                data={data}
+                ref={flatList}
+                data={dataVal}
+                onScroll={(e) => { handleScroll(e.nativeEvent.contentOffset.x) }}
+                scrollEventThrottle={100}
                 renderItem={({ item, index }) => (
                     <CarouselItem item={item} index={index} navigation={navigation} />
                 )}

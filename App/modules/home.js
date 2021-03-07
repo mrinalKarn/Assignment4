@@ -2,19 +2,71 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView ,Dimensions} from 'react-native';
 import Carousel from './../component/carousel';
 import HorizontalView from './../component/horizontalView';
-
+import { useEffect, useState } from 'react';
 const windowHeight = Dimensions.get('window').height;
+import {fetchData, fetchPopular} from './../service';
+import { ActivityIndicator } from 'react-native';
 
 const Home = ({navigation}) => {
-    return (
+    const [dataCarousel, setDataCarousel] = useState([]);
+    const [dataHorizontal,setDataHorizontal] = useState([]);
+    let url = "https://image.tmdb.org/t/p/w500";
+
+    useEffect(() => {
+        // Carousel Data
+        fetchData().then(val => {
+            let arr = [];
+            val.results.map(val => {
+                var obj = {
+                    title: val.original_title,
+                    id: val.id,
+                    genre: "Suspense",
+                    rating: val.vote_average,
+                    description: val.overview,
+                    image: url + val.poster_path,
+                    bgImage: url + val.backdrop_path
+                }
+                arr.push(obj);
+            })
+            setDataCarousel(arr);
+           //makeFlatListScollable(20);
+        })
+        // Horizonatal View Data
+        fetchPopular().then(val => {
+            let arr = [];
+            val.results.map(val => {
+                var obj = {
+                    title : val.original_title,
+                    id:val.id,
+                    genre : "Suspense",
+                    rating : val.vote_average,
+                    description :val.overview,
+                    image : url+val.poster_path,
+                    bgImage:url+val.backdrop_path
+                }
+                arr.push(obj);
+            })
+            setDataHorizontal(arr);
+        })
+    }, []);
+
+    if(!dataCarousel && !dataHorizontal) {
+        return(
+            <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                <ActivityIndicator size="large" color="red"/>
+            </View>
+        )
+    }
+
+    else return (
         <ScrollView>
             <View style={{height:windowHeight}}> 
-                <Carousel navigation={navigation}/>
+                <Carousel navigation={navigation} dataVal={dataCarousel}/>
                 <View style={styles.div}>
                     <Text style={styles.popular}>Popular</Text>
                     <Text style={styles.seeAll} onPress={()=>navigation.navigate('List',{title:"Popular",url:"https://api.themoviedb.org/3/movie/popular?api_key=9fd87a5b6d4b869c248693c5a8126ae3&language=en-US&page="})}>See all</Text>
                 </View>
-                <HorizontalView navigation={navigation}/>
+                <HorizontalView navigation={navigation} dataVal={dataHorizontal}/>
                 <View style={{ flexDirection: 'row',marginTop:8}}>
                     <Image source={{ uri: "https://github.com/oyo-kishan/MovieApp/blob/master/images/play.png?raw=true" }} style={styles.topImage} />
                     <Text style={styles.topText} onPress={()=>navigation.navigate('List',{title:"Now Playing",url:"https://api.themoviedb.org/3/movie/now_playing?api_key=9fd87a5b6d4b869c248693c5a8126ae3&language=en-US&page=1"})}>Now Playing</Text>

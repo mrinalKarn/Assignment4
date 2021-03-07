@@ -8,6 +8,8 @@ const Detail = ({ route, navigation }) => {
     // if (param) {
     //     console.log(param.id)
     // }
+
+    // ViewPager(Tab layout) + API + some js and stylesheet
     return (
         <View>
             <View style={styles.imageContainer}>
